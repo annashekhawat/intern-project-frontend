@@ -1,6 +1,6 @@
 <template>
   <div id="moviesTable">
-    <b-table
+      <b-table
       fixed
       responsive
       :striped="striped"
@@ -12,7 +12,7 @@
       :dark="dark"
       :foot-clone="footClone"
       :no-border-collapse="noCollapse"
-      :items="items"
+      :items="filtered"
       :fields="fields"
       :head-variant="headVariant"
       :table-variant="tableVariant">
@@ -26,10 +26,18 @@
         >
       </template>
       <!-- End Code to set column widths individually-->
-      
+
+      <!-- search box for search by genre -->
+      <template slot="top-row" slot-scope="{ fields }">
+        <td v-for="field in fields" :key="field.key">
+          <input v-if= "field.key === 'genre'" v-model="filters[field.key]" :placeholder="field.label">
+        </td>
+      </template>
+      <!--end code for the search feature -->
+
       <!-- Special code for the column 'Review'-->
       <template v-slot:cell(review)="row">
-        
+
         <!-- Add review button-->
         <span class="d-inline-block" v-if="showAddReviewButton(row)" tabindex="0" v-b-tooltip.bottom v-bind:title="row.item.authorizedToEditReview ? 'Add a review for this movie' : 'You are not authorized to add this review'">
         <b-button id = "add-review-button" v-if="showAddReviewButton(row)" size="sm" variant="primary" v-bind:disabled="!row.item.authorizedToEditReview"  v-on:click="addReviewClicked(row)" class="mr-2">
@@ -45,7 +53,7 @@
         <!-- Showing remaining characters for review-->
         <div v-if="showSubmitReviewButton(row)" class="input-group-addon" v-text="(maxLengthOfReview - row.item.review.length) + ' of ' + maxLengthOfReview + ' characters left'"></div>
         <!-- End Showing remaining characters for review-->
-        
+
         <!-- Submit review button-->
         <b-button id = "submit-review-button" v-if="showSubmitReviewButton(row)" size="sm" variant="success"  v-on:click="submitReviewClicked(row)" v-b-tooltip.hover.bottom="'Submit this review'" class="mr-2">
           Submit
@@ -93,6 +101,13 @@ var datalist = [
             {key: 'director', label: 'Director', sortable: true},
             {key: 'genre', label: 'Genre', sortable: true},
             {key: 'review', label: 'Review', sortable: true}],
+       filters: {
+          movie_id: '',
+          movie: '',
+          director: '',
+          genre: '',
+          review: ''
+        },
         items: datalist,
         tableVariants: [
           'primary',
@@ -139,7 +154,7 @@ var datalist = [
         return row.item.editingReview;
       },
       submitReviewClicked: function(row) {
-        
+
         row.item.editingReview = false;
       },
 
@@ -154,6 +169,21 @@ var datalist = [
       //Review label functionality
       showReviewLabel: function(row) {
         return row.item.review != '' && !row.item.editingReview;
+      }
+    },
+    computed: {
+      filtered: function() {
+        const filtered = this.items.filter(item => {
+        return Object.keys(this.filters).every(key =>
+            String(item[key]).includes(this.filters[key]))
+      })
+      return filtered.length > 0 ? filtered : [{
+        movie_id: '',
+        movie: '',
+        director: '',
+        genre: '',
+        review: ''
+      }]
       }
     }
   }
@@ -181,4 +211,3 @@ var datalist = [
 }
 
 </style>
-
