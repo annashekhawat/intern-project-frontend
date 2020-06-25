@@ -175,7 +175,7 @@ var datalist = [
       filtered: function() {
         const filtered = this.items.filter(item => {
         return Object.keys(this.filters).every(key =>
-            String(item[key]).includes(this.filters[key]))
+            String(item[key]).toLowerCase().match(this.filters[key].toLowerCase()))
       })
       return filtered.length > 0 ? filtered : [{
         movie_id: '',
