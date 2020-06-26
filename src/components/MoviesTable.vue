@@ -1,5 +1,19 @@
 <template>
   <div id="moviesTable">
+    <template>
+    <div>
+
+    <multiselect
+             v-model="selectedValues"
+             :options="options"
+             :multiple="true"
+             placeholder="Filter by genre"
+             track-by="id"
+             label="genre"
+             @select="filteredGenres">
+           </multiselect>
+      </div>
+    </template>
       <b-table
       fixed
       responsive
@@ -12,7 +26,7 @@
       :dark="dark"
       :foot-clone="footClone"
       :no-border-collapse="noCollapse"
-      :items="filtered"
+      :items="filteredGenres"
       :fields="fields"
       :head-variant="headVariant"
       :table-variant="tableVariant">
@@ -25,14 +39,16 @@
           :style="{ width: field.key === 'review' ? '35%' : (field.key === 'movie_id' ? '10%' : '15%') }"
         >
       </template>
+
       <!-- End Code to set column widths individually-->
 
       <!-- search box for search by genre -->
-      <template slot="top-row" slot-scope="{ fields }">
+      <!-- <template slot="top-row" slot-scope="{ fields }">
         <td v-for="field in fields" :key="field.key">
           <input v-if= "field.key === 'genre'" v-model="filters[field.key]" :placeholder="field.label">
         </td>
-      </template>
+      </template> -->
+
       <!--end code for the search feature -->
 
       <!-- Special code for the column 'Review'-->
@@ -82,8 +98,9 @@
     </b-table>
   </div>
 </template>
-
+<script src="https://unpkg.com/vue-multiselect@2.1.0"></script>
 <script>
+import Multiselect from 'vue-multiselect'
 
 var datalist = [
           { editingReview: false, authorizedToEditReview: true, movie_id: '1', movie: 'Endgame', director: 'Anthony Russo', genre: 'Action', review: '' },
@@ -92,6 +109,7 @@ var datalist = [
           { editingReview: false, authorizedToEditReview: true, movie_id: '4', movie: 'Get Out', director: 'Jordan Peele', genre: 'Horror', review: 'Bad' }
         ];
   export default {
+    components: { Multiselect },
     data() {
       return {
         maxLengthOfReview: '120',
@@ -101,13 +119,9 @@ var datalist = [
             {key: 'director', label: 'Director', sortable: true},
             {key: 'genre', label: 'Genre', sortable: true},
             {key: 'review', label: 'Review', sortable: true}],
-       filters: {
-          movie_id: '',
-          movie: '',
-          director: '',
-          genre: '',
-          review: ''
-        },
+        selectedValues: [],
+        options: [{'genre' : 'Action','id' : '1'},
+        {'genre' : 'Horror', 'id' : '3'},{ 'genre' : 'Superhero', 'id': '2'}],
         items: datalist,
         tableVariants: [
           'primary',
@@ -172,18 +186,24 @@ var datalist = [
       }
     },
     computed: {
-      filtered: function() {
-        const filtered = this.items.filter(item => {
-        return Object.keys(this.filters).every(key =>
-            String(item[key]).toLowerCase().match(this.filters[key].toLowerCase()))
-      })
-      return filtered.length > 0 ? filtered : [{
-        movie_id: '',
-        movie: '',
-        director: '',
-        genre: '',
-        review: ''
-      }]
+      selectedGenres() {
+        const genres = []
+        for (const { genre } of this.selectedValues) {
+          genres.push(genre)
+        }
+        return genres
+      },
+      filteredGenres() {
+        if (this.selectedValues.length === 0) {
+          return this.items
+        }
+        const itemsList = []
+        for (const item of this.items) {
+          if (this.selectedGenres.includes(item.genre)) {
+            itemsList.push(item)
+          }
+        }
+        return itemsList
       }
     }
   }
@@ -211,3 +231,4 @@ var datalist = [
 }
 
 </style>
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
