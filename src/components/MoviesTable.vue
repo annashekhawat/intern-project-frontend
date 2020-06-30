@@ -1,6 +1,20 @@
 <template>
   <div id="moviesTable">
-    <b-table
+    <template>
+    <div>
+
+    <multiselect
+             v-model="selectedValues"
+             :options="options"
+             :multiple="true"
+             placeholder="Filter by genre"
+             track-by="id"
+             label="genre"
+             @select="filteredGenres">
+           </multiselect>
+      </div>
+    </template>
+      <b-table
       fixed
       responsive
       :striped="striped"
@@ -12,7 +26,7 @@
       :dark="dark"
       :foot-clone="footClone"
       :no-border-collapse="noCollapse"
-      :items="items"
+      :items="filteredGenres"
       :fields="fields"
       :head-variant="headVariant"
       :table-variant="tableVariant">
@@ -25,11 +39,21 @@
           :style="{ width: field.key === 'review' ? '35%' : (field.key === 'movie_id' ? '10%' : '15%') }"
         >
       </template>
+
       <!-- End Code to set column widths individually-->
-      
+
+      <!-- search box for search by genre -->
+      <!-- <template slot="top-row" slot-scope="{ fields }">
+        <td v-for="field in fields" :key="field.key">
+          <input v-if= "field.key === 'genre'" v-model="filters[field.key]" :placeholder="field.label">
+        </td>
+      </template> -->
+
+      <!--end code for the search feature -->
+
       <!-- Special code for the column 'Review'-->
       <template v-slot:cell(review)="row">
-        
+
         <!-- Add review button-->
         <span class="d-inline-block" v-if="showAddReviewButton(row)" tabindex="0" v-b-tooltip.bottom v-bind:title="row.item.authorizedToEditReview ? 'Add a review for this movie' : 'You are not authorized to add this review'">
         <b-button id = "add-review-button" v-if="showAddReviewButton(row)" size="sm" variant="primary" v-bind:disabled="!row.item.authorizedToEditReview"  v-on:click="addReviewClicked(row)" class="mr-2">
@@ -45,7 +69,7 @@
         <!-- Showing remaining characters for review-->
         <div v-if="showSubmitReviewButton(row)" class="input-group-addon" v-text="(maxLengthOfReview - row.item.review.length) + ' of ' + maxLengthOfReview + ' characters left'"></div>
         <!-- End Showing remaining characters for review-->
-        
+
         <!-- Submit review button-->
         <b-button id = "submit-review-button" v-if="showSubmitReviewButton(row)" size="sm" variant="success"  v-on:click="submitReviewClicked(row)" v-b-tooltip.hover.bottom="'Submit this review'" class="mr-2">
           Submit
@@ -74,8 +98,9 @@
     </b-table>
   </div>
 </template>
-
+<script src="https://unpkg.com/vue-multiselect@2.1.0"></script>
 <script>
+import Multiselect from 'vue-multiselect'
 
 var datalist = [
           { editingReview: false, authorizedToEditReview: true, movie_id: '1', movie: 'Endgame', director: 'Anthony Russo', genre: 'Action', review: '' },
@@ -84,6 +109,7 @@ var datalist = [
           { editingReview: false, authorizedToEditReview: true, movie_id: '4', movie: 'Get Out', director: 'Jordan Peele', genre: 'Horror', review: 'Bad' }
         ];
   export default {
+    components: { Multiselect },
     data() {
       return {
         maxLengthOfReview: '120',
@@ -93,6 +119,9 @@ var datalist = [
             {key: 'director', label: 'Director', sortable: true},
             {key: 'genre', label: 'Genre', sortable: true},
             {key: 'review', label: 'Review', sortable: true}],
+        selectedValues: [],
+        options: [{'genre' : 'Action','id' : '1'},
+        {'genre' : 'Horror', 'id' : '3'},{ 'genre' : 'Superhero', 'id': '2'}],
         items: datalist,
         tableVariants: [
           'primary',
@@ -139,7 +168,7 @@ var datalist = [
         return row.item.editingReview;
       },
       submitReviewClicked: function(row) {
-        
+
         row.item.editingReview = false;
       },
 
@@ -154,6 +183,27 @@ var datalist = [
       //Review label functionality
       showReviewLabel: function(row) {
         return row.item.review != '' && !row.item.editingReview;
+      }
+    },
+    computed: {
+      selectedGenres() {
+        const genres = []
+        for (const { genre } of this.selectedValues) {
+          genres.push(genre)
+        }
+        return genres
+      },
+      filteredGenres() {
+        if (this.selectedValues.length === 0) {
+          return this.items
+        }
+        const itemsList = []
+        for (const item of this.items) {
+          if (this.selectedGenres.includes(item.genre)) {
+            itemsList.push(item)
+          }
+        }
+        return itemsList
       }
     }
   }
@@ -181,4 +231,4 @@ var datalist = [
 }
 
 </style>
-
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
