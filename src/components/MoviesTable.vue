@@ -63,7 +63,7 @@
         <!-- End Add review button-->
 
         <!-- Input field for review-->
-        <b-form-input v-if="showSubmitReviewButton(row)" autofocus = "true" v-model="row.item.review" :maxlength="maxLengthOfReview" placeholder="Add review here" ></b-form-input>
+        <b-form-input v-if="showSubmitReviewButton(row)" autofocus="true" v-model="row.item.review" :maxlength="maxLengthOfReview" placeholder="Add review here" ></b-form-input>
         <!-- End Input field for review-->
 
         <!-- Showing remaining characters for review-->
@@ -168,9 +168,27 @@ var datalist = [
         return row.item.editingReview;
       },
       submitReviewClicked: function(row) {
-
         row.item.editingReview = false;
-      },
+        this.$http.put('http://localhost:8001/genre/' + row.item.genre + '/directors/' + row.item.director + '/movies/' + row.item.movie,{
+          movieID: row.item.movie_id,
+          director: row.item.director,
+          movie: row.item.movie,
+          genre: row.item.genre,
+          review: row.item.review
+        }).then(function(data){
+          return data.json();
+        }).then(function(data)
+      {
+        for (let record in data)
+        {
+          if(row.item.movie_id === record.movieId)
+          {
+            row.item.review = record.review;
+          }
+        }
+        console.log(data);
+      })
+    },
 
       // Delete review functionality
       showDeleteReviewButton: function(row) {
