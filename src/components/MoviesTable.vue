@@ -113,6 +113,7 @@ var datalist = [
     data() {
       return {
         maxLengthOfReview: '120',
+        role: "critic",
         fields: [
             {key: 'movie_id', label: 'Movie Id', sortable: true},
             {key: 'movie', label: 'Movie', sortable: true},
@@ -123,6 +124,7 @@ var datalist = [
         options: [{'genre' : 'Action','id' : '1'},
         {'genre' : 'Horror', 'id' : '3'},{ 'genre' : 'Superhero', 'id': '2'}],
         items: datalist,
+        genres: [],
         tableVariants: [
           "primary",
           "secondary",
@@ -200,8 +202,19 @@ var datalist = [
       //Review label functionality
       showReviewLabel: function(row) {
         return row.item.review != "" && !row.item.editingReview;
+      },
+      getGenresForRole: function() {
+        this.$http.get("http://localhost:8001/role/" + this.role).then(function(data) {
+          return data.json();
+        }).then(function(data)
+      {
+        this.genres = data;
+      });
       }
     },
+    beforeMount(){
+    this.getGenresForRole()
+  },
     computed: {
       selectedGenres() {
         const genres = [];
