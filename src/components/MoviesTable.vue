@@ -124,14 +124,14 @@ var datalist = [
         {'genre' : 'Horror', 'id' : '3'},{ 'genre' : 'Superhero', 'id': '2'}],
         items: datalist,
         tableVariants: [
-          'primary',
-          'secondary',
-          'info',
-          'danger',
-          'warning',
-          'success',
-          'light',
-          'dark'
+          "primary",
+          "secondary",
+          "info",
+          "danger",
+          "warning",
+          "success",
+          "light",
+          "dark"
         ],
         striped: true,
         bordered: true,
@@ -149,7 +149,7 @@ var datalist = [
     methods: {
       // Add review functionality
       showAddReviewButton: function(row) {
-        return row.item.review == '' && !row.item.editingReview;
+        return row.item.review == "" && !row.item.editingReview;
       },
       addReviewClicked: function(row) {
         row.item.editingReview = true;
@@ -157,7 +157,7 @@ var datalist = [
 
       // Edit review functionality
       showEditReviewButton: function(row) {
-        return row.item.review != '' && !row.item.editingReview;
+        return row.item.review != "" && !row.item.editingReview;
       },
       editReviewClicked: function(row) {
         row.item.editingReview = true;
@@ -169,7 +169,7 @@ var datalist = [
       },
       submitReviewClicked: function(row) {
         row.item.editingReview = false;
-        this.$http.put('http://localhost:8001/genre/' + row.item.genre + '/directors/' + row.item.director + '/movies/' + row.item.movie,{
+        this.$http.put("http://localhost:8001/genre/" + row.item.genre + "/directors/" + row.item.director + "/movies/" + row.item.movie,{
           movieID: row.item.movie_id,
           director: row.item.director,
           movie: row.item.movie,
@@ -181,50 +181,42 @@ var datalist = [
       {
         for (let record in data)
         {
-          if(row.item.movie_id === record.movieId)
-          {
+          if(row.item.movie_id === record.movieId) {
             row.item.review = record.review;
           }
         }
         console.log(data);
-      })
+      });
     },
 
       // Delete review functionality
       showDeleteReviewButton: function(row) {
-        return row.item.review != '' && !row.item.editingReview;
+        return row.item.review != "" && !row.item.editingReview;
       },
       deleteReviewClicked: function(row) {
-        row.item.review = '';
+        row.item.review = "";
       },
 
       //Review label functionality
       showReviewLabel: function(row) {
-        return row.item.review != '' && !row.item.editingReview;
+        return row.item.review != "" && !row.item.editingReview;
       }
     },
     computed: {
       selectedGenres() {
-        const genres = []
+        const genres = [];
         for (const { genre } of this.selectedValues) {
           genres.push(genre)
         }
         return genres
       },
       filteredGenres() {
-        if (this.selectedValues.length === 0) {
-          return this.items
-        }
-        const itemsList = []
-        for (const item of this.items) {
-          if (this.selectedGenres.includes(item.genre)) {
-            itemsList.push(item)
-          }
-        }
-        return itemsList
+        if (this.selectedValues.length === 0) return this.items
+
+        return this.items.filter(item => this.selectedGenres.includes(item.genre));
       }
     }
-  }
+  };
 </script>
 
 <style lang="scss" scoped>
