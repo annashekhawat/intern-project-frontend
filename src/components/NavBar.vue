@@ -1,8 +1,8 @@
 <template>
   <div>
-    <b-navbar toggleable="lg" type="dark" variant="dark">
+    <b-navbar toggleable="lg" class="navbar">
       <b-container>
-        <b-navbar-brand href="#">Service Dashboard</b-navbar-brand>
+        <b-navbar-brand href="#" class="navbar-brand">Service Discovery</b-navbar-brand>
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       </b-container>
     </b-navbar>
@@ -22,3 +22,17 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.navbar {
+  background-color: rgb(26, 31, 113);
+}
+
+.navbar-brand {
+  color: white;
+}
+
+.navbar-brand:hover {
+  color: rgb(199, 175, 140);
+}
+</style>
