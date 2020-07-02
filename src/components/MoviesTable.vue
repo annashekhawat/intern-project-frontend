@@ -98,7 +98,7 @@
         <span class="d-inline-block" tabindex="0" v-b-tooltip.bottom v-bind:title="row.item.authorizedToEditReview ? 'Delete this movie' : 'You are not authorized to delete this movie'">
         <b-button id = "delete-review-button" sm="1" size="sm" variant="outline-danger"  v-bind:disabled="!row.item.authorizedToEditReview" v-on:click="deleteReviewClicked(row)" class="mr-2">
           <!--b-icon icon="trash-fill" aria-hidden="false"></b-icon-->
-          Delete this Movie
+          Delete
         </b-button>
         </span>
         <!-- End Delete review button-->
@@ -166,7 +166,7 @@
             {key: 'director', label: 'Director', sortable: true},
             {key: 'genre', label: 'Genre', sortable: true},
             {key: 'review', label: 'Review', sortable: true},
-            {key: 'delete_this_movie', label: 'Delete this Movie', sortable: false}],
+            {key: 'delete_this_movie', label: 'Delete Movie', sortable: false}],
         selectedValues: [],
         options: [
           {'genre' : 'comedy','id' : '1'},
