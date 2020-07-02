@@ -29,7 +29,9 @@
       :items="filteredGenres"
       :fields="fields"
       :head-variant="headVariant"
-      :table-variant="tableVariant">
+      :table-variant="tableVariant"
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="sortDesc">
 
       <!-- Code to set column widths individually-->
       <template v-slot:table-colgroup="scope">
@@ -159,6 +161,8 @@
     components: { Multiselect },
     data() {
       return {
+        sortBy: 'movie_id',
+        sortDesc: false,
         maxLengthOfReview: '120',
         fields: [
             {key: 'movie_id', label: 'Movie Id', sortable: true},
