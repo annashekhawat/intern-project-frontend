@@ -36,7 +36,7 @@
         <col
           v-for="field in scope.fields"
           :key="field.key"
-          :style="{ width: field.key === 'review' ? '35%' : (field.key === 'movie_id' ? '10%' : '15%') }"
+          :style="{ width: field.key === 'review' ? '30%' : (field.key === 'movie_id' ? '10%' : '15%') }"
         >
       </template>
 
@@ -81,33 +81,80 @@
         <!-- End Label where review is displayed while it is not being edited-->
 
         <!-- Edit review button-->
-        <b-button id = "edit-review-button" v-if="showEditReviewButton(row)" size="sm" variant="outline-warning"  v-on:click="editReviewClicked(row)" v-b-tooltip.hover.bottom="'Edit this review'" class="mr-2">
+        <span class="d-inline-block" v-if="showEditReviewButton(row)" tabindex="0" v-b-tooltip.bottom v-bind:title="row.item.authorizedToEditReview ? 'Edit this review' : 'You are not authorized to edit this review'">
+        <b-button id = "edit-review-button" v-if="showEditReviewButton(row)" size="sm" variant="outline-primary" v-bind:disabled="!row.item.authorizedToEditReview" v-on:click="editReviewClicked(row)" class="mr-2">
           <b-icon icon="pencil" aria-hidden="false"></b-icon>
         </b-button>
+        </span>
         <!-- End Edit review button-->
-
-        <!-- Delete review button-->
-        <b-button id = "delete-review-button" v-if="showDeleteReviewButton(row)" sm="1" size="sm" variant="outline-danger"  v-on:click="deleteReviewClicked(row)" v-b-tooltip.hover.bottom="'Delete this review'" class="mr-2">
-          <b-icon icon="trash-fill" aria-hidden="false"></b-icon>
-        </b-button>
-        <!-- End Delete review button-->
 
       </template>
       <!-- End Special code for the column 'Review'-->
+        
+
+      <!-- Special code for the column 'Delete this Movie'-->
+      <template v-slot:cell(delete_this_movie)="row">
+        <!-- Delete review button-->
+        <span class="d-inline-block" tabindex="0" v-b-tooltip.bottom v-bind:title="row.item.authorizedToEditReview ? 'Delete this movie' : 'You are not authorized to delete this movie'">
+        <b-button id = "delete-review-button" sm="1" size="sm" variant="outline-danger"  v-bind:disabled="!row.item.authorizedToEditReview" v-on:click="deleteReviewClicked(row)" class="mr-2">
+          <!--b-icon icon="trash-fill" aria-hidden="false"></b-icon-->
+          Delete this Movie
+        </b-button>
+        </span>
+        <!-- End Delete review button-->
+      </template>
+      <!-- End Special code for the column 'Delete this Movie'-->
 
     </b-table>
   </div>
 </template>
 <script src="https://unpkg.com/vue-multiselect@2.1.0"></script>
 <script>
-import Multiselect from 'vue-multiselect'
+  import Multiselect from 'vue-multiselect'
 
-var datalist = [
-          { editingReview: false, authorizedToEditReview: true, movie_id: '1', movie: 'Endgame', director: 'Anthony Russo', genre: 'Action', review: '' },
-          { editingReview: false, authorizedToEditReview: false, movie_id: '2', movie: 'Avengers: Age of Ultron', director: 'Joss Whedon', genre: 'Action', review: '' },
-          { editingReview: false, authorizedToEditReview: true, movie_id: '3', movie: 'The Avengers', director: 'Joe Russo', genre: 'Superhero', review: 'Quick-witted and nuanced, this movie takes the best of the genre -- iconic heroes fighting for truth and justice.' },
-          { editingReview: false, authorizedToEditReview: true, movie_id: '4', movie: 'Get Out', director: 'Jordan Peele', genre: 'Horror', review: 'Bad' }
-        ];
+  var dataList = []
+  var authorizedGenres = [];
+
+  function getGenresForRoles() {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "http://localhost:8001/role/critic", false ); // false for synchronous request
+    xmlHttp.send( null );
+    var data = JSON.parse(xmlHttp.responseText);
+    authorizedGenres = data;
+  }
+
+  function getAllRecords() {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "http://localhost:8001/", false ); // false for synchronous request
+    xmlHttp.send( null );
+    var data = JSON.parse(xmlHttp.responseText);
+    for(var i = 0; i < data.length; i++) {
+      var dat = data[i];
+      var dataPoint = {};
+      dataPoint.editingReview = false;
+      if(authorizedGenres.includes(dat.Genre)) {
+        dataPoint.authorizedToEditReview = true;
+      }
+      else {
+        dataPoint.authorizedToEditReview = false;
+      }
+      dataPoint.movie_id = dat.MovieId;
+      dataPoint.movie = dat.Movie;
+      dataPoint.director = dat.Director;
+      dataPoint.genre = dat.Genre;
+      dataPoint.review = dat.Review;
+      dataList.push(dataPoint);
+    }
+  }
+  getGenresForRoles();
+  getAllRecords();
+
+  // var dataList = [
+  //           { editingReview: false, authorizedToEditReview: true, movie_id: '1', movie: 'Endgame', director: 'Anthony Russo', genre: 'Action', review: '' },
+  //           { editingReview: false, authorizedToEditReview: false, movie_id: '2', movie: 'Avengers: Age of Ultron', director: 'Joss Whedon', genre: 'Action', review: '' },
+  //           { editingReview: false, authorizedToEditReview: true, movie_id: '3', movie: 'The Avengers', director: 'Joe Russo', genre: 'Superhero', review: 'Quick-witted and nuanced, this movie takes the best of the genre -- iconic heroes fighting for truth and justice.' },
+  //           { editingReview: false, authorizedToEditReview: true, movie_id: '4', movie: 'Get Out', director: 'Jordan Peele', genre: 'Horror', review: 'Bad' }
+  //         ];
   export default {
     components: { Multiselect },
     data() {
@@ -118,11 +165,19 @@ var datalist = [
             {key: 'movie', label: 'Movie', sortable: true},
             {key: 'director', label: 'Director', sortable: true},
             {key: 'genre', label: 'Genre', sortable: true},
-            {key: 'review', label: 'Review', sortable: true}],
+            {key: 'review', label: 'Review', sortable: true},
+            {key: 'delete_this_movie', label: 'Delete this Movie', sortable: false}],
         selectedValues: [],
-        options: [{'genre' : 'Action','id' : '1'},
-        {'genre' : 'Horror', 'id' : '3'},{ 'genre' : 'Superhero', 'id': '2'}],
-        items: datalist,
+        options: [
+          {'genre' : 'comedy','id' : '1'},
+          {'genre' : 'horror', 'id' : '2'},
+          {'genre' : 'sci-fi', 'id': '3'},
+          {'genre' : 'drama', 'id': '4'},
+          {'genre' : 'docu', 'id': '5'},
+          {'genre' : 'period', 'id': '6'},
+          {'genre' : 'rom-com', 'id': '7'},
+        ],
+        items: dataList,
         tableVariants: [
           "primary",
           "secondary",
@@ -177,24 +232,21 @@ var datalist = [
           review: row.item.review
         }).then(function(data){
           return data.json();
-        }).then(function(data)
-      {
-        for (let record in data)
-        {
-          if(row.item.movie_id === record.movieId) {
-            row.item.review = record.review;
-          }
-        }
-        console.log(data);
-      });
-    },
+        });
+      },
 
       // Delete review functionality
-      showDeleteReviewButton: function(row) {
-        return row.item.review != "" && !row.item.editingReview;
-      },
       deleteReviewClicked: function(row) {
-        row.item.review = "";
+        var reallyDelete = confirm("Are you sure you want to delete this movie?");
+        if(!reallyDelete) return;
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "DELETE",
+          "http://localhost:8001/genre/" + row.item.genre + "/directors/" + row.item.director + "/movies/" + row.item.movie,
+          false ); // false for synchronous request
+        xmlHttp.send( null );
+        var data = JSON.parse(xmlHttp.responseText);
+        console.log(data);
+        location.reload();
       },
 
       //Review label functionality
