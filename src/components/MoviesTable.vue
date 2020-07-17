@@ -12,6 +12,17 @@
              label="genre"
              @select="filteredGenres">
            </multiselect>
+
+           <multiselect
+                    v-model="selectedValues1"
+                    :options="directors"
+                    track-by="director"
+                    placeholder="Filter by director"
+                    label="director"
+                    @select="filteredDirectors"
+                    :multiple="true">
+            </multiselect>
+
       </div>
     </template>
       <b-table
@@ -26,7 +37,7 @@
       :dark="dark"
       :foot-clone="footClone"
       :no-border-collapse="noCollapse"
-      :items="filteredGenres"
+      :items="filteredDirectors"
       :fields="fields"
       :head-variant="headVariant"
       :table-variant="tableVariant">
@@ -90,7 +101,7 @@
 
       </template>
       <!-- End Special code for the column 'Review'-->
-        
+
 
       <!-- Special code for the column 'Delete this Movie'-->
       <template v-slot:cell(delete_this_movie)="row">
@@ -168,6 +179,8 @@
             {key: 'review', label: 'Review', sortable: true},
             {key: 'delete_this_movie', label: 'Delete Movie', sortable: false}],
         selectedValues: [],
+        selectedValues1: [],
+
         options: [
           {'genre' : 'comedy','id' : '1'},
           {'genre' : 'horror', 'id' : '2'},
@@ -178,6 +191,7 @@
           {'genre' : 'rom-com', 'id': '7'},
         ],
         items: dataList,
+        directors: [],
         tableVariants: [
           "primary",
           "secondary",
@@ -263,12 +277,51 @@
         return genres
       },
       filteredGenres() {
-        if (this.selectedValues.length === 0) return this.items
-
-        return this.items.filter(item => this.selectedGenres.includes(item.genre));
+        const directorList = [];
+        if (this.selectedValues.length === 0)
+        {
+          this.directors = [];
+          this.selectedValues1 = [];
+        }
+        for (const item of this.items) {
+          if(this.selectedGenres.includes(item.genre)) {
+          directorList.push(item);
+        }
       }
+      this.directors = directorList;
+      // return this.items.filter(item => this.selectedGenres.includes(item.genre));
+      },
+      selectedDirectors() {
+        const director_list = [];
+        for (const { director } of this.selectedValues1) {
+          director_list.push(director)
+        }
+        return director_list
+      },
+      filteredDirectors() {
+        const filteredMovie = [];
+        console.log("called");
+
+        if(this.selectedValues.length === 0)
+        {
+          this.directors = [];
+          return this.items;
+        }
+
+        if (this.selectedValues1.length === 0)
+        {
+          return this.directors;
+        }
+        for (const item of this.directors) {
+          if(this.selectedDirectors.includes(item.director)) {
+            filteredMovie.push(item);
+        }
+      }
+      console.log(this.selectedValues1);
+      return filteredMovie;
     }
-  };
+  }
+};
 </script>
 
 <style lang="scss" scoped>
