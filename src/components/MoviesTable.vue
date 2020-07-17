@@ -1,18 +1,20 @@
 <template>
   <div id="moviesTable">
     <template>
-    <div>
+      <div>
 
-    <multiselect
-             v-model="selectedValues"
-             :options="options"
-             :multiple="true"
-             placeholder="Filter by genre"
-             track-by="id"
-             label="genre"
-             @select="filteredGenres">
-           </multiselect>
-
+        <div id="rightContainer3">
+      <multiselect
+               v-model="selectedValues2"
+               :options="movies"
+               :multiple="true"
+               placeholder="Filter by movie"
+               track-by="movie"
+               label="movie"
+               @select="filteredMovies">
+             </multiselect>
+           </div>
+         <div id="rightContainer1">
            <multiselect
                     v-model="selectedValues1"
                     :options="directors"
@@ -22,8 +24,20 @@
                     @select="filteredDirectors"
                     :multiple="true">
             </multiselect>
+          </div>
 
-      </div>
+          <div id="rightContainer2">
+        <multiselect
+                 v-model="selectedValues"
+                 :options="options"
+                 :multiple="true"
+                 placeholder="Filter by genre"
+                 track-by="id"
+                 label="genre"
+                 @select="filteredGenres">
+               </multiselect>
+             </div>
+        </div>
     </template>
       <b-table
       fixed
@@ -37,7 +51,7 @@
       :dark="dark"
       :foot-clone="footClone"
       :no-border-collapse="noCollapse"
-      :items="filteredDirectors"
+      :items="filteredMovies"
       :fields="fields"
       :head-variant="headVariant"
       :table-variant="tableVariant">
@@ -180,7 +194,7 @@
             {key: 'delete_this_movie', label: 'Delete Movie', sortable: false}],
         selectedValues: [],
         selectedValues1: [],
-
+        selectedValues2: [],
         options: [
           {'genre' : 'comedy','id' : '1'},
           {'genre' : 'horror', 'id' : '2'},
@@ -192,6 +206,7 @@
         ],
         items: dataList,
         directors: [],
+        movies: [],
         tableVariants: [
           "primary",
           "secondary",
@@ -282,6 +297,8 @@
         {
           this.directors = [];
           this.selectedValues1 = [];
+          this.movies = [];
+          this.selectedValues2 = [];
         }
         for (const item of this.items) {
           if(this.selectedGenres.includes(item.genre)) {
@@ -289,6 +306,7 @@
         }
       }
       this.directors = directorList;
+
       // return this.items.filter(item => this.selectedGenres.includes(item.genre));
       },
       selectedDirectors() {
@@ -299,26 +317,60 @@
         return director_list
       },
       filteredDirectors() {
-        const filteredMovie = [];
+        const filteredDir = [];
 
         if(this.selectedValues.length === 0)
         {
           this.directors = [];
-          return this.items;
+          // return this.items;
         }
 
         if (this.selectedValues1.length === 0)
         {
-          return this.directors;
+          this.movies = [];
         }
         for (const item of this.directors) {
           if(this.selectedDirectors.includes(item.director)) {
-            filteredMovie.push(item);
+            filteredDir.push(item);
         }
       }
-      return filteredMovie;
+      this.movies = filteredDir;
+    },
+    selectedMovie() {
+      const mov_list = [];
+      for (const { movie } of this.selectedValues2) {
+        mov_list.push(movie)
+      }
+      return mov_list
+    },
+    filteredMovies() {
+      const filter_movie_list = [];
+      if(this.selectedValues.length === 0)
+      {
+        this.directors = [];
+        this.movies = [];
+        return this.items;
+      }
+      if(this.selectedValues1.length === 0)
+      {
+        this.movies = [];
+        return this.directors;
+      }
+
+      if (this.selectedValues2.length === 0)
+      {
+        return this.movies;
+      }
+      for (const item of this.movies) {
+        if(this.selectedMovie.includes(item.movie)) {
+          filter_movie_list.push(item);
+      }
     }
+    console.log("hello");
+    console.log(filter_movie_list);
+    return filter_movie_list;
   }
+}
 };
 </script>
 
@@ -332,7 +384,17 @@
 #submit-review-button {
   margin-top: 0.5em;
 }
+#rightContainer1 {
+   float:right;
+}
 
+#rightContainer2 {
+   float:right;
+}
+
+#rightContainer3 {
+   float:right;
+}
 #review-label {
   margin-bottom: 0em;
 }
