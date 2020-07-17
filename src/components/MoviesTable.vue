@@ -300,7 +300,6 @@
       },
       filteredDirectors() {
         const filteredMovie = [];
-        console.log("called");
 
         if(this.selectedValues.length === 0)
         {
@@ -317,7 +316,6 @@
             filteredMovie.push(item);
         }
       }
-      console.log(this.selectedValues1);
       return filteredMovie;
     }
   }
