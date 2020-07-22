@@ -1,18 +1,43 @@
 <template>
   <div id="moviesTable">
     <template>
-    <div>
+      <div>
 
-    <multiselect
-             v-model="selectedValues"
-             :options="options"
-             :multiple="true"
-             placeholder="Filter by genre"
-             track-by="id"
-             label="genre"
-             @select="filteredGenres">
-           </multiselect>
-      </div>
+        <div id="rightContainer3">
+      <multiselect
+               v-model="selectedValues2"
+               :options="movies"
+               :multiple="true"
+               placeholder="Filter by movie"
+               track-by="movie"
+               label="movie"
+               @select="filteredMovies">
+             </multiselect>
+           </div>
+         <div id="rightContainer1">
+           <multiselect
+                    v-model="selectedValues1"
+                    :options="directors"
+                    track-by="director"
+                    placeholder="Filter by director"
+                    label="director"
+                    @select="filteredDirectors"
+                    :multiple="true">
+            </multiselect>
+          </div>
+
+          <div id="rightContainer2">
+        <multiselect
+                 v-model="selectedValues"
+                 :options="options"
+                 :multiple="true"
+                 placeholder="Filter by genre"
+                 track-by="id"
+                 label="genre"
+                 @select="filteredGenres">
+               </multiselect>
+             </div>
+        </div>
     </template>
       <b-table
       fixed
@@ -26,7 +51,7 @@
       :dark="dark"
       :foot-clone="footClone"
       :no-border-collapse="noCollapse"
-      :items="filteredGenres"
+      :items="filteredMovies"
       :fields="fields"
       :head-variant="headVariant"
       :table-variant="tableVariant"
@@ -92,7 +117,7 @@
 
       </template>
       <!-- End Special code for the column 'Review'-->
-        
+
 
       <!-- Special code for the column 'Delete this Movie'-->
       <template v-slot:cell(delete_this_movie)="row">
@@ -172,6 +197,8 @@
             {key: 'review', label: 'Review', sortable: true},
             {key: 'delete_this_movie', label: 'Delete Movie', sortable: false}],
         selectedValues: [],
+        selectedValues1: [],
+        selectedValues2: [],
         options: [
           {'genre' : 'comedy','id' : '1'},
           {'genre' : 'horror', 'id' : '2'},
@@ -182,6 +209,8 @@
           {'genre' : 'rom-com', 'id': '7'},
         ],
         items: dataList,
+        directors: [],
+        movies: [],
         tableVariants: [
           "primary",
           "secondary",
@@ -267,12 +296,86 @@
         return genres
       },
       filteredGenres() {
-        if (this.selectedValues.length === 0) return this.items
+        const directorList = [];
+        if (this.selectedValues.length === 0)
+        {
+          this.directors = [];
+          this.selectedValues1 = [];
+          this.movies = [];
+          this.selectedValues2 = [];
+        }
+        for (const item of this.items) {
+          if(this.selectedGenres.includes(item.genre)) {
+          directorList.push(item);
+        }
+      }
+      this.directors = directorList;
 
-        return this.items.filter(item => this.selectedGenres.includes(item.genre));
+      // return this.items.filter(item => this.selectedGenres.includes(item.genre));
+      },
+      selectedDirectors() {
+        const director_list = [];
+        for (const { director } of this.selectedValues1) {
+          director_list.push(director)
+        }
+        return director_list
+      },
+      filteredDirectors() {
+        const filteredDir = [];
+
+        if(this.selectedValues.length === 0)
+        {
+          this.directors = [];
+          // return this.items;
+        }
+
+        if (this.selectedValues1.length === 0)
+        {
+          this.movies = [];
+        }
+        for (const item of this.directors) {
+          if(this.selectedDirectors.includes(item.director)) {
+            filteredDir.push(item);
+        }
+      }
+      this.movies = filteredDir;
+    },
+    selectedMovie() {
+      const mov_list = [];
+      for (const { movie } of this.selectedValues2) {
+        mov_list.push(movie)
+      }
+      return mov_list
+    },
+    filteredMovies() {
+      const filter_movie_list = [];
+      if(this.selectedValues.length === 0)
+      {
+        this.directors = [];
+        this.movies = [];
+        return this.items;
+      }
+      if(this.selectedValues1.length === 0)
+      {
+        this.movies = [];
+        return this.directors;
+      }
+
+      if (this.selectedValues2.length === 0)
+      {
+        return this.movies;
+      }
+      for (const item of this.movies) {
+        if(this.selectedMovie.includes(item.movie)) {
+          filter_movie_list.push(item);
       }
     }
-  };
+    console.log("hello");
+    console.log(filter_movie_list);
+    return filter_movie_list;
+  }
+}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -285,7 +388,17 @@
 #submit-review-button {
   margin-top: 0.5em;
 }
+#rightContainer1 {
+   float:right;
+}
 
+#rightContainer2 {
+   float:right;
+}
+
+#rightContainer3 {
+   float:right;
+}
 #review-label {
   margin-bottom: 0em;
 }
