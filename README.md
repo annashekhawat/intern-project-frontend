@@ -5,7 +5,7 @@
 npm install
 ```
 ## Install libraries
-npm install --save vue-resource
+npm install --save vue-resource  <br />
 npm install --save vue-multiselect
 
 
