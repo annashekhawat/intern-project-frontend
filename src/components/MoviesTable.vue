@@ -347,7 +347,7 @@
       return mov_list
     },
     filteredMovies() {
-      const filter_movie_list = [];
+      const filtered_movie_list = [];
       if(this.selectedValues.length === 0)
       {
         this.directors = [];
@@ -366,10 +366,10 @@
       }
       for (const item of this.movies) {
         if(this.selectedMovie.includes(item.movie)) {
-          filter_movie_list.push(item);
+          filtered_movie_list.push(item);
       }
     }
-    return filter_movie_list;
+    return filtered_movie_list;
   }
 }
 };
