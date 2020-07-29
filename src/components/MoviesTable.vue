@@ -278,7 +278,6 @@
           false ); // false for synchronous request
         xmlHttp.send( null );
         var data = JSON.parse(xmlHttp.responseText);
-        console.log(data);
         location.reload();
       },
 
@@ -370,8 +369,6 @@
           filter_movie_list.push(item);
       }
     }
-    console.log("hello");
-    console.log(filter_movie_list);
     return filter_movie_list;
   }
 }
